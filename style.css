@@ -166,3 +166,5 @@ input[type=range]:focus-visible { outline: 2px solid var(--accent); outline-offs
 @media (prefers-reduced-motion: reduce) {
   .drawer, .tag, .tg .trk, .tg .trk::after { transition: none; }
 }
+#nogl[hidden] { display: none !important; }
+
