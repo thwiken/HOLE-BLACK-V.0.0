@@ -1,0 +1,10 @@
+{
+  "name": "agujero-negro-interactivo",
+  "version": "1.0.0",
+  "description": "Visor 3D interactivo de agujeros negros reales (Three.js + GLSL)",
+  "private": true,
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "license": "MIT"
+}
