@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agujero Negro Interactivo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="bar">
+    <div class="brand">
+      <span class="eyebrow">Relatividad general · Schwarzschild</span>
+      <h1>Agujero <em>negro</em></h1>
+    </div>
+
+    <div class="bar-btns">
+      <button type="button" class="tbtn" id="btnInfo" aria-expanded="false" aria-controls="drawInfo">Información</button>
+      <button type="button" class="tbtn" id="btnSet" aria-expanded="false" aria-controls="drawSet">Ajustes</button>
+    </div>
+
+    <nav class="models" id="models" aria-label="Modelos de agujero negro"></nav>
+  </header>
+
+  <main class="stage" id="stage">
+    <canvas id="gl" tabindex="0" aria-label="Agujero negro en 3D. Arrastra para orbitar; usa la rueda o las flechas del teclado para moverte."></canvas>
+    <div class="tags" id="tags" aria-hidden="true"></div>
+    <div class="hint">Arrastra para orbitar · rueda o pellizco para acercar</div>
+
+    <div class="views" role="group" aria-label="Vistas">
+      <button type="button" class="chip" data-view="edge" aria-pressed="false">De canto</button>
+      <button type="button" class="chip" data-view="tilt" aria-pressed="false">Inclinada</button>
+      <button type="button" class="chip" data-view="top" aria-pressed="false">Desde arriba</button>
+      <button type="button" class="chip" id="reset" aria-pressed="false">Reiniciar vista</button>
+    </div>
+
+    <!-- Panel de información (oculto por defecto) -->
+    <aside class="drawer left" id="drawInfo" aria-label="Información" aria-hidden="true">
+      <div class="dhead">
+        <h2>Información</h2>
+        <button type="button" class="x" data-close="drawInfo" aria-label="Cerrar información">×</button>
+      </div>
+      <div class="dbody">
+        <section class="model-card">
+          <span class="eyebrow" id="mKind"></span>
+          <h3 id="mName"></h3>
+          <p id="mDesc"></p>
+          <dl class="facts">
+            <div><dt>Masa</dt><dd id="mMass"></dd></div>
+            <div><dt>Distancia</dt><dd id="mDist"></dd></div>
+            <div><dt>Dato</dt><dd id="mFact"></dd></div>
+          </dl>
+        </section>
+
+        <section>
+          <h4 class="lbl">Lectura en vivo</h4>
+          <div class="stats" aria-live="polite">
+            <div class="stat"><span class="k">Radio de Schwarzschild</span><span class="v" id="sRs"></span><span class="s" id="sRsC"></span></div>
+            <div class="stat"><span class="k">Sombra · 2,6 Rs</span><span class="v" id="sSh"></span><span class="s">Radio del círculo oscuro visto desde lejos.</span></div>
+            <div class="stat"><span class="k">Última órbita · 3 Rs</span><span class="v" id="sIsco"></span><span class="s">Borde interno del disco.</span></div>
+            <div class="stat"><span class="k">Vuelta en la ISCO</span><span class="v" id="sPer"></span><span class="s">Visto desde lejos.</span></div>
+            <div class="stat"><span class="k">Temp. de Hawking</span><span class="v" id="sT"></span><span class="s">Muy por debajo de los 2,7 K del fondo cósmico.</span></div>
+            <div class="stat"><span class="k">Densidad media</span><span class="v" id="sRho"></span><span class="s" id="sRhoC"></span></div>
+          </div>
+        </section>
+
+        <details class="more">
+          <summary>Anatomía a escala</summary>
+          <svg class="anat-svg" id="anat" viewBox="0 0 640 440" role="img" aria-label="Vista desde arriba con las distancias en radios de Schwarzschild: horizonte 1, esfera de fotones 1,5, sombra 2,6, última órbita estable 3 y borde del disco 8."></svg>
+          <dl class="defs">
+            <div><dt>Horizonte de sucesos<span>1 Rs</span></dt><dd>La frontera sin retorno. Dentro, ni la luz logra salir.</dd></div>
+            <div><dt>Esfera de fotones<span>1,5 Rs</span></dt><dd>La luz puede orbitar en círculos inestables. De ahí sale el anillo fino que rodea la sombra.</dd></div>
+            <div><dt>Sombra<span>≈ 2,6 Rs</span></dt><dd>El círculo oscuro que verías desde lejos. Es mayor que el horizonte porque la gravedad captura los rayos cercanos.</dd></div>
+            <div><dt>Última órbita estable<span>3 Rs</span></dt><dd>Sin rotación, el gas no puede orbitar de forma estable más adentro. Por eso el disco empieza aquí.</dd></div>
+            <div><dt>Disco de acreción</dt><dd>Gas caliente en espiral. El lado que se acerca a ti brilla más por el efecto Doppler.</dd></div>
+          </dl>
+        </details>
+
+        <p class="note">Las cifras corresponden a un agujero negro sin rotación y sin carga. Masas y distancias son estimaciones publicadas. El color, la inclinación y el ángulo de cámara de cada modelo son artísticos, y la lente gravitacional usa una deflexión simplificada, no un trazado completo de rayos.</p>
+      </div>
+    </aside>
+
+    <!-- Panel de ajustes (oculto por defecto) -->
+    <aside class="drawer right" id="drawSet" aria-label="Ajustes" aria-hidden="true">
+      <div class="dhead">
+        <h2>Ajustes</h2>
+        <button type="button" class="x" data-close="drawSet" aria-label="Cerrar ajustes">×</button>
+      </div>
+      <div class="dbody">
+        <section class="sec">
+          <h4 class="lbl">Tamaño</h4>
+          <div class="ctl">
+            <label for="mass">Masa</label><output id="massOut" for="mass"></output>
+            <input type="range" id="mass" min="0" max="10000" step="1" value="6465">
+          </div>
+          <div class="ctl">
+            <label for="scale">Escala en pantalla</label><output id="scaleOut" for="scale"></output>
+            <input type="range" id="scale" min="0.5" max="1.6" step="0.05" value="1">
+          </div>
+        </section>
+
+        <section class="sec">
+          <h4 class="lbl">Disco y partículas</h4>
+          <div class="ctl">
+            <label for="tilt">Inclinación del eje</label><output id="tiltOut" for="tilt"></output>
+            <input type="range" id="tilt" min="0" max="90" step="1" value="8">
+          </div>
+          <div class="ctl">
+            <label for="speed">Velocidad de giro</label><output id="speedOut" for="speed"></output>
+            <input type="range" id="speed" min="0" max="3" step="0.05" value="1">
+          </div>
+          <div class="ctl">
+            <label for="bright">Brillo</label><output id="brightOut" for="bright"></output>
+            <input type="range" id="bright" min="0.2" max="2" step="0.05" value="1">
+          </div>
+          <div class="ctl">
+            <label for="parts">Partículas de gas</label><output id="partsOut" for="parts"></output>
+            <input type="range" id="parts" min="0" max="100" step="5" value="100">
+          </div>
+        </section>
+
+        <section class="sec">
+          <h4 class="lbl">Color del disco</h4>
+          <div class="swatches" id="swatches" role="group" aria-label="Paletas"></div>
+          <label class="pick" for="color">Color libre <input type="color" id="color" value="#ff8a3a"></label>
+        </section>
+
+        <section class="sec">
+          <h4 class="lbl">Capas</h4>
+          <label class="tg"><span>Lente gravitacional</span><input type="checkbox" id="tLens" checked><span class="trk"></span></label>
+          <label class="tg"><span>Chorros relativistas</span><input type="checkbox" id="tJets"><span class="trk"></span></label>
+          <label class="tg"><span>Estrellas de fondo</span><input type="checkbox" id="tStars" checked><span class="trk"></span></label>
+          <label class="tg"><span>Etiquetas</span><input type="checkbox" id="tLabels" checked><span class="trk"></span></label>
+          <label class="tg"><span>Órbita automática</span><input type="checkbox" id="tAuto"><span class="trk"></span></label>
+        </section>
+
+        <section class="sec">
+          <button type="button" class="chip wide" id="restore">Volver a los valores del modelo</button>
+        </section>
+      </div>
+    </aside>
+
+    <div id="nogl" hidden>Tu navegador no pudo iniciar WebGL, que necesita este visor. Prueba con otro navegador o activa la aceleración por hardware. La información y las cifras siguen disponibles.</div>
+  </main>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/physics.js"></script>
+<script src="js/models.js"></script>
+<script src="js/shaders.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/labels.js"></script>
+<script src="js/anatomy.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
