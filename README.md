@@ -3,9 +3,6 @@
 Visor 3D de agujeros negros reales (Estelar, Cygnus X-1, Sagitario A*, M87*, NGC 4889, TON 618 y Phoenix A)
 hecho con HTML, CSS, JavaScript y shaders GLSL sobre Three.js (WebGL).
 
-## Cómo abrirlo
-
-Abre `index.html` con doble clic en un navegador moderno. Necesita internet para cargar Three.js y las tipografías.
 
 Si prefieres un servidor local (Python o Node):
 
